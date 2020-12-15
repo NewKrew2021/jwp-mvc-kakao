@@ -17,24 +17,28 @@ public class ReflectionTest {
     public void showClass() {
         Class<Question> clazz = Question.class;
         logger.debug("class name: {}", clazz.getName());
+
+        logger.debug("==== fields ==== ");
         for (Field field : clazz.getDeclaredFields()) {
-            logger.debug("  field : {} {}", Modifier.toString(field.getModifiers()), field.getName());
+            logger.debug("{} {} {}", Modifier.toString(field.getModifiers()), field.getType().getSimpleName(), field.getName());
         }
 
-        for (Constructor constructor : clazz.getConstructors()) {
+        logger.debug("==== constructors ==== ");
+        for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
             String parameters = Stream.of(constructor.getParameters())
                     .map(Parameter::getType)
-                    .map(Class::getTypeName)
+                    .map(Class::getSimpleName)
                     .collect(Collectors.joining(", "));
-            logger.debug("  constructor: {}({})", clazz.getSimpleName(), parameters);
+            logger.debug("{} {}({})", Modifier.toString(constructor.getModifiers()), clazz.getSimpleName(), parameters);
         }
 
+        logger.debug("==== methods ==== ");
         for (Method method : clazz.getDeclaredMethods()) {
             String parameters = Stream.of(method.getParameters())
                     .map(Parameter::getType)
-                    .map(Class::getTypeName)
+                    .map(Class::getSimpleName)
                     .collect(Collectors.joining(", "));
-            logger.debug("  method: {}({})", method.getName(), parameters);
+            logger.debug("{} {} {}({})", Modifier.toString(method.getModifiers()), method.getReturnType().getSimpleName(), method.getName(), parameters);
         }
     }
 
