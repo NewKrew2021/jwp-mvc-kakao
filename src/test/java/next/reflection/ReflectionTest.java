@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.*;
+import java.util.Date;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,20 +62,21 @@ public class ReflectionTest {
         Class<Student> clazz = Student.class;
         Student student = clazz.newInstance();
 
-        Field name = clazz.getDeclaredField("name");
-        name.setAccessible(true);
-        name.set(student, "reflection");
-
-        Field age = clazz.getDeclaredField("age");
-        age.setAccessible(true);
-        age.set(student, 999);
+        setValueOnPrivateField(student, "name", "reflection");
+        setValueOnPrivateField(student, "age", 999);
 
         assertThat(student.getName()).isEqualTo("reflection");
         assertThat(student.getAge()).isEqualTo(999);
     }
 
+    private void setValueOnPrivateField(Object instance, String fieldName, Object value) throws NoSuchFieldException, IllegalAccessException {
+        Field field = instance.getClass().getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.set(instance, value);
+    }
+
     @Test
-    public void constructQuestion() throws Exception {
+    public void constructor1() throws Exception {
         Class<Question> clazz = Question.class;
         Constructor<Question> constructor = clazz.getDeclaredConstructor(String.class, String.class, String.class);
         Question instance = constructor.newInstance("writer", "title", "contents");
@@ -82,5 +84,21 @@ public class ReflectionTest {
         assertThat(instance.getWriter()).isEqualTo("writer");
         assertThat(instance.getTitle()).isEqualTo("title");
         assertThat(instance.getContents()).isEqualTo("contents");
+    }
+
+    @Test
+    public void constructor2() throws Exception {
+        Class<Question> clazz = Question.class;
+        Constructor<Question> constructor = clazz.getDeclaredConstructor(long.class, String.class, String.class, String.class, Date.class, int.class);
+
+        Date createdDate = new Date();
+        Question instance = constructor.newInstance(1L, "writer", "title", "contents", createdDate, 3);
+
+        assertThat(instance.getQuestionId()).isEqualTo(1L);
+        assertThat(instance.getWriter()).isEqualTo("writer");
+        assertThat(instance.getTitle()).isEqualTo("title");
+        assertThat(instance.getContents()).isEqualTo("contents");
+        assertThat(instance.getCreatedDate()).isEqualTo(createdDate);
+        assertThat(instance.getCountOfComment()).isEqualTo(3);
     }
 }
