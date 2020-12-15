@@ -68,4 +68,15 @@ public class ReflectionTest {
         assertThat(student.getName()).isEqualTo("reflection");
         assertThat(student.getAge()).isEqualTo(999);
     }
+
+    @Test
+    public void constructQuestion() throws Exception {
+        Class<Question> clazz = Question.class;
+        Constructor<Question> constructor = clazz.getDeclaredConstructor(String.class, String.class, String.class);
+        Question instance = constructor.newInstance("writer", "title", "contents");
+
+        assertThat(instance.getWriter()).isEqualTo("writer");
+        assertThat(instance.getTitle()).isEqualTo("title");
+        assertThat(instance.getContents()).isEqualTo("contents");
+    }
 }
