@@ -64,18 +64,17 @@ public class BeanFactoryTest {
                 new SubTypesScanner());
 
         logger.debug("controllers ------");
-        reflections.getTypesAnnotatedWith(Controller.class)
-                .stream()
-                .forEach(clazz -> logger.debug("{}", clazz.getName()));
+        printAnnotatedClass(reflections, Controller.class);
 
         logger.debug("services ------");
-        reflections.getTypesAnnotatedWith(Service.class)
-                .stream()
-                .forEach(clazz -> logger.debug("{}", clazz.getName()));
+        printAnnotatedClass(reflections, Service.class);
 
         logger.debug("repositories ------");
-        reflections.getTypesAnnotatedWith(Repository.class)
-                .stream()
-                .forEach(clazz -> logger.debug("{}", clazz.getName()));
+        printAnnotatedClass(reflections, Repository.class);
+    }
+
+    private void printAnnotatedClass(Reflections reflections, Class<? extends Annotation> clazz) {
+        reflections.getTypesAnnotatedWith(clazz)
+                .forEach(c -> logger.debug("{}", c.getName()));
     }
 }
