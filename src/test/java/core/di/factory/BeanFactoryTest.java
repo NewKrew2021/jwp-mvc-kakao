@@ -6,9 +6,14 @@ import core.annotation.Service;
 import core.annotation.web.Controller;
 import core.di.factory.example.MyQnaService;
 import core.di.factory.example.QnaController;
+import next.reflection.ReflectionTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
@@ -16,6 +21,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
+    private static final Logger logger = LoggerFactory.getLogger(BeanFactoryTest.class);
+
     private Reflections reflections;
     private BeanFactory beanFactory;
 
@@ -47,5 +54,28 @@ public class BeanFactoryTest {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
         return beans;
+    }
+
+    @Test
+    public void printAnnotatedClasses() {
+        Reflections reflections = new Reflections(
+                "core.di.factory.example",
+                new TypeAnnotationsScanner(),
+                new SubTypesScanner());
+
+        logger.debug("controllers ------");
+        reflections.getTypesAnnotatedWith(Controller.class)
+                .stream()
+                .forEach(clazz -> logger.debug("{}", clazz.getName()));
+
+        logger.debug("services ------");
+        reflections.getTypesAnnotatedWith(Service.class)
+                .stream()
+                .forEach(clazz -> logger.debug("{}", clazz.getName()));
+
+        logger.debug("repositories ------");
+        reflections.getTypesAnnotatedWith(Repository.class)
+                .stream()
+                .forEach(clazz -> logger.debug("{}", clazz.getName()));
     }
 }
