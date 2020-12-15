@@ -15,8 +15,7 @@ public class Junit4TestRunner {
 
 
         List<Method> annotatedMethods = Arrays.stream(clazz.getDeclaredMethods())
-                .filter(method -> Arrays.stream(method.getAnnotations())
-                        .anyMatch(annotation -> annotation.annotationType().getSimpleName().equals("MyTest")))
+                .filter(method -> method.isAnnotationPresent(MyTest.class))
                 .collect(Collectors.toList());
 
         annotatedMethods.stream().forEach( method -> {
