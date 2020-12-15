@@ -8,6 +8,8 @@ import java.lang.reflect.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ReflectionTest {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionTest.class);
 
@@ -48,5 +50,22 @@ public class ReflectionTest {
                 logger.debug("param type : {}", paramType);
             }
         }
+    }
+
+    @Test
+    public void privateFieldAccess() throws IllegalAccessException, InstantiationException, NoSuchFieldException {
+        Class<Student> clazz = Student.class;
+        Student student = clazz.newInstance();
+
+        Field name = clazz.getDeclaredField("name");
+        name.setAccessible(true);
+        name.set(student, "reflection");
+
+        Field age = clazz.getDeclaredField("age");
+        age.setAccessible(true);
+        age.set(student, 999);
+
+        assertThat(student.getName()).isEqualTo("reflection");
+        assertThat(student.getAge()).isEqualTo(999);
     }
 }
