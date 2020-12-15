@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.Constructor;
+import java.lang.reflect.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ReflectionTest {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionTest.class);
@@ -12,7 +14,26 @@ public class ReflectionTest {
     @Test
     public void showClass() {
         Class<Question> clazz = Question.class;
-        logger.debug(clazz.getName());
+        logger.debug("class name: {}", clazz.getName());
+        for (Field field : clazz.getDeclaredFields()) {
+            logger.debug("  field : {} {}", Modifier.toString(field.getModifiers()), field.getName());
+        }
+
+        for (Constructor constructor : clazz.getConstructors()) {
+            String parameters = Stream.of(constructor.getParameters())
+                    .map(Parameter::getType)
+                    .map(Class::getTypeName)
+                    .collect(Collectors.joining(", "));
+            logger.debug("  constructor: {}({})", clazz.getSimpleName(), parameters);
+        }
+
+        for (Method method : clazz.getDeclaredMethods()) {
+            String parameters = Stream.of(method.getParameters())
+                    .map(Parameter::getType)
+                    .map(Class::getTypeName)
+                    .collect(Collectors.joining(", "));
+            logger.debug("  method: {}({})", method.getName(), parameters);
+        }
     }
 
     @Test
