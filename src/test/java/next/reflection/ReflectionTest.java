@@ -8,10 +8,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.MessageFormat;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.InstanceOfAssertFactories.PATH;
 
 public class ReflectionTest {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionTest.class);
@@ -101,5 +104,20 @@ public class ReflectionTest {
         assertThat(student.getAge()).isEqualTo(18);
 
     }
+
+    @Test
+    void createInstanceByConstructor() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        Class clazz = Question.class;
+
+        Constructor constructor1 = clazz.getDeclaredConstructor(String.class, String.class, String.class);
+        assertThat(constructor1.newInstance("nio", "title", "contents"))
+                .isEqualTo(new Question("nio", "title", "contents"));
+
+        Constructor constructor2 = clazz.getDeclaredConstructor(long.class, String.class, String.class, String.class, Date.class, int.class);
+        assertThat(constructor2.newInstance(1L, "nio", "title", "contents", new Date(), 0))
+                .isEqualTo(new Question(1L, "nio", "title", "contents", new Date(), 0));
+
+    }
+
 
 }
