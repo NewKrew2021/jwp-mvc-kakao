@@ -4,18 +4,25 @@ import com.google.common.collect.Sets;
 import core.annotation.Repository;
 import core.annotation.Service;
 import core.annotation.web.Controller;
+import core.di.factory.example.JdbcQuestionRepository;
+import core.di.factory.example.JdbcUserRepository;
 import core.di.factory.example.MyQnaService;
 import core.di.factory.example.QnaController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.annotation.Annotation;
 import java.util.Set;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BeanFactoryTest {
+    private Logger logger = LoggerFactory.getLogger(BeanFactoryTest.class);
+
     private Reflections reflections;
     private BeanFactory beanFactory;
 
@@ -26,6 +33,36 @@ public class BeanFactoryTest {
         Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         beanFactory = new BeanFactory(preInstanticateClazz);
         beanFactory.initialize();
+    }
+
+    @Test
+    void scanController(){
+        Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(Controller.class);
+        assertThat(controllers).containsExactly(QnaController.class);
+        controllers.stream()
+                .forEach(controller -> {
+                    logger.debug(controller.getName());
+                });
+    }
+
+    @Test
+    void scanService(){
+        Set<Class<?>> services = reflections.getTypesAnnotatedWith(Service.class);
+        assertThat(services).containsExactly(MyQnaService.class);
+        services.stream()
+                .forEach(service -> {
+                    logger.debug(service.getName());
+                });
+    }
+
+    @Test
+    void scanRepository(){
+        Set<Class<?>> repositories = reflections.getTypesAnnotatedWith(Repository.class);
+        assertThat(repositories).containsExactlyInAnyOrder(JdbcUserRepository.class, JdbcQuestionRepository.class);
+        repositories.stream()
+                .forEach(repository -> {
+                    logger.debug(repository.getName());
+                });
     }
 
     @Test
