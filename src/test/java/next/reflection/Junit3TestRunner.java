@@ -16,10 +16,10 @@ public class Junit3TestRunner {
         List<Method> testMethods = Arrays.stream(clazz.getDeclaredMethods())
                 .filter(method -> method.getName().startsWith("test"))
                 .collect(Collectors.toList());
-        
-        testMethods.forEach( test -> {
+
+        for( Method method : testMethods ){
             try {
-                test.invoke(clazz.getDeclaredConstructor().newInstance());
+                method.invoke(clazz.getDeclaredConstructor().newInstance());
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
@@ -29,7 +29,7 @@ public class Junit3TestRunner {
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
-        });
+        }
 
     }
 }

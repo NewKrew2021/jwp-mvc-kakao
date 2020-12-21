@@ -7,34 +7,16 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.InstanceOfAssertFactories.PATH;
 
 public class ReflectionTest {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionTest.class);
-
-    enum Modifier {
-        PRIVATE(2), PUBLIC(1), PROTECTED(3), UNKNOWN(-1);
-
-        private final int value;
-
-        Modifier(int value) {
-            this.value = value;
-        }
-
-        public static Modifier valueOf(int value){
-            return Arrays.stream(Modifier.values())
-                    .filter(modifier -> modifier.value == value )
-                    .findFirst()
-                    .orElse(UNKNOWN);
-        }
-    }
 
     @Test
     public void showClass() {
@@ -46,22 +28,22 @@ public class ReflectionTest {
         Arrays.stream(clazz.getDeclaredConstructors())
                 .forEach(constructor -> {
                     logger.debug(MessageFormat.format("constructors: {0} {1} ({2})",
-                            Modifier.valueOf(constructor.getModifiers()).name(),
+                            Modifier.toString(constructor.getModifiers()),
                             clazz.getName(),
-                            Arrays.stream(constructor.getParameterTypes()).map(it -> it.getName()).collect(Collectors.joining(" ,"))));
+                            Arrays.stream(constructor.getParameterTypes()).map(it -> it.getName()).collect(Collectors.joining(", "))));
                 });
 
         // 필드
         Arrays.stream(clazz.getDeclaredFields())
                 .forEach(field -> {
-                    logger.debug(MessageFormat.format("fields: {0} {1}(type:{2})",Modifier.valueOf(field.getModifiers()).name(), field.getName(), field.getType() ));
+                    logger.debug(MessageFormat.format("fields: {0} {1}(type:{2})",Modifier.toString(field.getModifiers()), field.getName(), field.getType() ));
                 });
 
         // 매소드
         Arrays.stream(clazz.getDeclaredMethods())
                 .forEach(method -> {
                     logger.debug(MessageFormat.format("methods: {0} {1} {2} ({3})",
-                            Modifier.valueOf(method.getModifiers()).name(),
+                            Modifier.toString(method.getModifiers()),
                             method.getReturnType(),
                             method.getName(),
                             Arrays.stream(method.getParameters())
@@ -109,13 +91,26 @@ public class ReflectionTest {
     void createInstanceByConstructor() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         Class clazz = Question.class;
 
-        Constructor constructor1 = clazz.getDeclaredConstructor(String.class, String.class, String.class);
-        assertThat(constructor1.newInstance("nio", "title", "contents"))
-                .isEqualTo(new Question("nio", "title", "contents"));
+        Constructor<Question> constructor1 = clazz.getDeclaredConstructor(String.class, String.class, String.class);
+        Question q1 = constructor1.newInstance("nio", "title", "contents");
 
-        Constructor constructor2 = clazz.getDeclaredConstructor(long.class, String.class, String.class, String.class, Date.class, int.class);
-        assertThat(constructor2.newInstance(1L, "nio", "title", "contents", new Date(), 0))
-                .isEqualTo(new Question(1L, "nio", "title", "contents", new Date(), 0));
+        assertThat(q1)
+                .hasFieldOrPropertyWithValue("writer", "nio")
+                .hasFieldOrPropertyWithValue("title", "title")
+                .hasFieldOrPropertyWithValue("contents", "contents");
+
+        Date now = new Date();
+        Constructor<Question> constructor2 = clazz.getDeclaredConstructor(long.class, String.class, String.class, String.class, Date.class, int.class);
+        Question q2 = constructor2.newInstance(1L, "nio", "title", "contents", now, 0);
+
+        assertThat(q2)
+                .hasFieldOrPropertyWithValue("questionId", 1L)
+                .hasFieldOrPropertyWithValue("writer", "nio")
+                .hasFieldOrPropertyWithValue("title", "title")
+                .hasFieldOrPropertyWithValue("contents", "contents")
+                .hasFieldOrPropertyWithValue("createdDate", now)
+                .hasFieldOrPropertyWithValue("countOfComment", 0);
+
 
     }
 
