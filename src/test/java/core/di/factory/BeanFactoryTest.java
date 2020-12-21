@@ -4,10 +4,7 @@ import com.google.common.collect.Sets;
 import core.annotation.Repository;
 import core.annotation.Service;
 import core.annotation.web.Controller;
-import core.di.factory.example.JdbcQuestionRepository;
-import core.di.factory.example.JdbcUserRepository;
-import core.di.factory.example.MyQnaService;
-import core.di.factory.example.QnaController;
+import core.di.factory.example.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reflections.Reflections;
@@ -71,10 +68,15 @@ public class BeanFactoryTest {
 
         assertNotNull(qnaController);
         assertNotNull(qnaController.getQnaService());
+        assertNotNull(qnaController.getQnaService().getUserRepository());
+        assertNotNull(qnaController.getQnaService().getQuestionRepository());
 
-        MyQnaService qnaService = qnaController.getQnaService();
-        assertNotNull(qnaService.getUserRepository());
-        assertNotNull(qnaService.getQuestionRepository());
+        MyQnaService qnaService = beanFactory.getBean(MyQnaService.class);
+        assertThat(qnaController.getQnaService() == qnaService).isTrue();
+
+        UserRepository userRepository = beanFactory.getBean(JdbcUserRepository.class);
+        assertThat(userRepository == qnaController.getQnaService().getUserRepository()).isTrue();
+        assertThat(userRepository == qnaService.getUserRepository()).isTrue();
     }
 
     @SuppressWarnings("unchecked")

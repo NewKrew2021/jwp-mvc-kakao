@@ -6,8 +6,7 @@ import core.annotation.Inject;
 import java.lang.reflect.Constructor;
 import java.util.Set;
 
-import static org.reflections.ReflectionUtils.getAllConstructors;
-import static org.reflections.ReflectionUtils.withAnnotation;
+import static org.reflections.ReflectionUtils.*;
 
 public class BeanFactoryUtils {
     /**
@@ -24,6 +23,10 @@ public class BeanFactoryUtils {
             return null;
         }
         return injectedConstructors.iterator().next();
+    }
+
+    public static Constructor<?> getDefaultConstructor(Class<?> clazz){
+        return getConstructors(clazz, withParametersCount(0)).iterator().next();
     }
 
     /**
