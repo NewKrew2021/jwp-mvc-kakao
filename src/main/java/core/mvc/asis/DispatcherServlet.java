@@ -1,5 +1,8 @@
 package core.mvc.asis;
 
+import core.mvc.ModelAndView;
+import core.mvc.tobe.AnnotationHandlerMapping;
+import core.mvc.tobe.HandlerExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,11 +21,15 @@ public class DispatcherServlet extends HttpServlet {
     private static final String DEFAULT_REDIRECT_PREFIX = "redirect:";
 
     private RequestMapping rm;
+    private AnnotationHandlerMapping annotationHandlerMapping;
 
     @Override
     public void init() throws ServletException {
         rm = new RequestMapping();
         rm.initMapping();
+
+        annotationHandlerMapping = new AnnotationHandlerMapping("next.controller");
+        annotationHandlerMapping.initialize();
     }
 
     @Override
@@ -31,12 +38,25 @@ public class DispatcherServlet extends HttpServlet {
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
         Controller controller = rm.findController(requestUri);
-        try {
-            String viewName = controller.execute(req, resp);
-            move(viewName, req, resp);
-        } catch (Throwable e) {
-            logger.error("Exception : {}", e);
-            throw new ServletException(e.getMessage());
+        if( controller == null ) {
+            HandlerExecution handlerExecution = annotationHandlerMapping.getHandler(req);
+            if( handlerExecution != null ) {
+                try {
+                    ModelAndView mnv = handlerExecution.handle(req, resp);
+                    mnv.getView().render(mnv.getModel(), req, resp);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                    throw new ServletException(e.getMessage());
+                }
+            }
+        } else {
+            try {
+                String viewName = controller.execute(req, resp);
+                move(viewName, req, resp);
+            } catch (Throwable e) {
+                logger.error("Exception : {}", e);
+                throw new ServletException(e.getMessage());
+            }
         }
     }
 
