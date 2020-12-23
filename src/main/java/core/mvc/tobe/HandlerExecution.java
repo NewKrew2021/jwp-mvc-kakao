@@ -16,7 +16,11 @@ public class HandlerExecution {
         this.controller = controller;
     }
 
-    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        return (ModelAndView) method.invoke(controller, request, response);
+    public ModelAndView handle(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            return (ModelAndView) method.invoke(controller, request, response);
+        } catch( Exception e ){
+            throw new HandlerExecutionException("@RequestMapping 된 method 호출과정에 문제가 발생했습니다", e);
+        }
     }
 }

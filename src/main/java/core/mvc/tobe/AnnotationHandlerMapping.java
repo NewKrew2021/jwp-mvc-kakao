@@ -27,9 +27,10 @@ public class AnnotationHandlerMapping {
     public AnnotationHandlerMapping(InstanceFactory instanceFactory, Object... basePackage) {
         this.basePackage = basePackage;
         this.instanceFactory = instanceFactory;
+        initialize();
     }
 
-    public void initialize() {
+    void initialize() {
         Reflections reflections = new Reflections(basePackage);
 
         Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(Controller.class, true);
@@ -58,6 +59,12 @@ public class AnnotationHandlerMapping {
         String requestUri = request.getRequestURI();
         RequestMethod rm = RequestMethod.valueOf(request.getMethod().toUpperCase());
         return handlerExecutions.get(new HandlerKey(requestUri, rm));
+    }
+
+    public boolean hasHandler(HttpServletRequest request){
+        String requestUri = request.getRequestURI();
+        RequestMethod rm = RequestMethod.valueOf(request.getMethod().toUpperCase());
+        return handlerExecutions.containsKey(new HandlerKey(requestUri, rm));
     }
 
     private class Pair<K, V> {

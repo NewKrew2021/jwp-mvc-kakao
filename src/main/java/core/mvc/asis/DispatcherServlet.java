@@ -1,12 +1,11 @@
 package core.mvc.asis;
 
-import core.mvc.ModelAndView;
+import core.mvc.RequestHandler;
+import core.mvc.RequestHandlers;
 import core.mvc.tobe.AnnotationHandlerMapping;
-import core.mvc.tobe.HandlerExecution;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -18,18 +17,15 @@ import java.io.IOException;
 public class DispatcherServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
-    private static final String DEFAULT_REDIRECT_PREFIX = "redirect:";
 
-    private RequestMapping rm;
-    private AnnotationHandlerMapping annotationHandlerMapping;
+
+    private RequestHandlers requestHandlers;
 
     @Override
     public void init() throws ServletException {
-        rm = new RequestMapping();
-        rm.initMapping();
-
-        annotationHandlerMapping = new AnnotationHandlerMapping("next.controller");
-        annotationHandlerMapping.initialize();
+        requestHandlers = new RequestHandlers(
+                RequestHandler.legacy(new RequestMapping()),
+                RequestHandler.annotation(new AnnotationHandlerMapping("next.controller.tobe")));
     }
 
     @Override
@@ -37,37 +33,14 @@ public class DispatcherServlet extends HttpServlet {
         String requestUri = req.getRequestURI();
         logger.debug("Method : {}, Request URI : {}", req.getMethod(), requestUri);
 
-        Controller controller = rm.findController(requestUri);
-        if( controller == null ) {
-            HandlerExecution handlerExecution = annotationHandlerMapping.getHandler(req);
-            if( handlerExecution != null ) {
-                try {
-                    ModelAndView mnv = handlerExecution.handle(req, resp);
-                    mnv.getView().render(mnv.getModel(), req, resp);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                    throw new ServletException(e.getMessage());
-                }
-            }
-        } else {
-            try {
-                String viewName = controller.execute(req, resp);
-                move(viewName, req, resp);
-            } catch (Throwable e) {
-                logger.error("Exception : {}", e);
-                throw new ServletException(e.getMessage());
-            }
+        try {
+            RequestHandler requestHandler = requestHandlers.find(req);
+            requestHandler.handle(req, resp);
+        } catch ( RuntimeException e ){
+            logger.debug(e.getMessage(), e);
+            throw e;
         }
     }
 
-    private void move(String viewName, HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        if (viewName.startsWith(DEFAULT_REDIRECT_PREFIX)) {
-            resp.sendRedirect(viewName.substring(DEFAULT_REDIRECT_PREFIX.length()));
-            return;
-        }
 
-        RequestDispatcher rd = req.getRequestDispatcher(viewName);
-        rd.forward(req, resp);
-    }
 }

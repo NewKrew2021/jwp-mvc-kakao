@@ -8,8 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class RequestMapping {
-    private static final Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
+    private static final Logger logger = LoggerFactory.getLogger(RequestMapping.class);
+
     private Map<String, Controller> mappings = new HashMap<>();
+
+    public RequestMapping() {
+        initMapping();
+    }
 
     void initMapping() {
         mappings.put("/users/form", new ForwardController("/user/form.jsp"));
@@ -34,5 +39,9 @@ public class RequestMapping {
 
     void put(String url, Controller controller) {
         mappings.put(url, controller);
+    }
+
+    public boolean hasMapping(String url) {
+        return mappings.containsKey(url);
     }
 }
