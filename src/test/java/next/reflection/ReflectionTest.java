@@ -1,5 +1,6 @@
 package next.reflection;
 
+import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,24 +95,17 @@ public class ReflectionTest {
         Constructor<Question> constructor1 = clazz.getDeclaredConstructor(String.class, String.class, String.class);
         Question q1 = constructor1.newInstance("nio", "title", "contents");
 
-        assertThat(q1)
-                .hasFieldOrPropertyWithValue("writer", "nio")
-                .hasFieldOrPropertyWithValue("title", "title")
-                .hasFieldOrPropertyWithValue("contents", "contents");
+        RecursiveComparisonConfiguration config = new RecursiveComparisonConfiguration();
+        config.ignoreFields("createdDate");
+        assertThat(q1).usingRecursiveComparison(config)
+                .isEqualTo(new Question("nio", "title", "contents"));
 
         Date now = new Date();
         Constructor<Question> constructor2 = clazz.getDeclaredConstructor(long.class, String.class, String.class, String.class, Date.class, int.class);
         Question q2 = constructor2.newInstance(1L, "nio", "title", "contents", now, 0);
 
         assertThat(q2)
-                .hasFieldOrPropertyWithValue("questionId", 1L)
-                .hasFieldOrPropertyWithValue("writer", "nio")
-                .hasFieldOrPropertyWithValue("title", "title")
-                .hasFieldOrPropertyWithValue("contents", "contents")
-                .hasFieldOrPropertyWithValue("createdDate", now)
-                .hasFieldOrPropertyWithValue("countOfComment", 0);
-
-
+                .usingRecursiveComparison().isEqualTo(new Question(1L, "nio", "title", "contents", now, 0));
     }
 
 
