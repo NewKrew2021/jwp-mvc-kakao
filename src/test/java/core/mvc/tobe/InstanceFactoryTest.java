@@ -1,9 +1,12 @@
 package core.mvc.tobe;
 
+import core.di.factory.BeanFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,14 +29,14 @@ class AllNewFactorTest extends InstanceFactoryTest {
     }
 }
 
-//class SimpleInstanceFactoryTest extends InstanceFactoryTest {
-//
-//    @BeforeEach
-//    void setUp(){
-//        instanceFactory = new SimpleInstanceFactory(new BeanFactory(new HashSet<>(Arrays.asList(SampleObj.class))));
-//    }
-//
-//}
+class SimpleInstanceFactoryTest extends InstanceFactoryTest {
+
+    @BeforeEach
+    void setUp(){
+        instanceFactory = new SimpleInstanceFactory(new BeanFactory(new HashSet<>(Arrays.asList(SampleObj.class))));
+    }
+
+}
 
 class SampleObj {
     private String id = UUID.randomUUID().toString();

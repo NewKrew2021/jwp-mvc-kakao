@@ -8,10 +8,10 @@ import org.reflections.Reflections;
 
 import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class AnnotationHandlerMapping {
 
@@ -35,24 +35,25 @@ public class AnnotationHandlerMapping {
 
         Set<Class<?>> controllers = reflections.getTypesAnnotatedWith(Controller.class, true);
         controllers.stream()
-                .map(it -> new Pair<>(
+                .map(it -> Pair.of(
                         instanceFactory.create(it),
                         Arrays.stream(it.getDeclaredMethods())
                                 .filter(method -> method.isAnnotationPresent(RequestMapping.class))
                                 .collect(Collectors.toList()))
                 )
-                .forEach(controllerAndMethodsPair -> {
-                    Object controller = controllerAndMethodsPair.getKey();
-                    controllerAndMethodsPair.getValue()
-                            .forEach(method -> addHandlerExecution(controller, method));
-                });
+                .flatMap( instanceAndMethodsPair -> instanceAndMethodsPair.getValue()
+                        .stream()
+                        .map( method -> Pair.of( instanceAndMethodsPair.getKey(), method ))
+                )
+                .forEach( handlerKeyAndExecutionPair -> addHandlerExecution(handlerKeyAndExecutionPair.getKey(), handlerKeyAndExecutionPair.getValue()));
     }
 
-    private void addHandlerExecution(Object controller, Method method) {
+    private void addHandlerExecution(Object instance, Method method) {
         RequestMapping requestMapping = method.getAnnotation(RequestMapping.class);
         handlerExecutions.put(
                 new HandlerKey(requestMapping.value(), requestMapping.method()),
-                new HandlerExecution(controller, method));
+                new HandlerExecution(instance, method));
+
     }
 
     public HandlerExecution getHandler(HttpServletRequest request) {
@@ -67,11 +68,11 @@ public class AnnotationHandlerMapping {
         return handlerExecutions.containsKey(new HandlerKey(requestUri, rm));
     }
 
-    private class Pair<K, V> {
+    private static class Pair<K, V> {
         private final K key;
         private final V value;
 
-        public Pair(K key, V value) {
+        private Pair(K key, V value) {
             this.key = key;
             this.value = value;
         }
@@ -82,6 +83,10 @@ public class AnnotationHandlerMapping {
 
         public V getValue() {
             return value;
+        }
+
+        public static <K, V> Pair <K, V> of(K key, V value){
+            return new Pair(key, value);
         }
     }
 

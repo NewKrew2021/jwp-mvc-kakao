@@ -6,7 +6,7 @@ import javax.annotation.Nonnull;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * clazz 인스턴스를 만들어 주는 Factory
+ * clazz 의 인스턴스를 만들어 주는 Factory
  */
 public interface InstanceFactory {
 
@@ -24,6 +24,9 @@ public interface InstanceFactory {
 
 }
 
+/**
+ * BeanFactory 에 없으면 인스턴스를 새로 생성하고 이미 존재하면 Bean 을 인스턴스로 재사용하는 Factory
+ */
 class SimpleInstanceFactory implements InstanceFactory {
 
     private final BeanFactory beanFactory;
