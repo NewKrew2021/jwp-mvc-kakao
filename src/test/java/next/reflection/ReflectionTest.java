@@ -8,7 +8,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -98,4 +100,22 @@ public class ReflectionTest {
         ageField.set(student, age);
     }
 
+    @Test
+    public void createQuestion() throws Exception {
+        Class<Question> clazz = Question.class;
+        long questionId = 1L;
+        String writer = "writer";
+        String title = "title";
+        String content = "content";
+        Date createdDate = Date.from(Instant.EPOCH);
+        int countOfComment = 1;
+
+        Constructor<Question> constructor1 = clazz.getConstructor(String.class, String.class, String.class);
+        Question question1 = constructor1.newInstance(writer, title, content);
+        assertThat(question1).isEqualTo(new Question(writer, title, content));
+
+        Constructor<Question> constructor2 = clazz.getConstructor(Long.TYPE, String.class, String.class, String.class, Date.class, Integer.TYPE);
+        Question question2 = constructor2.newInstance(questionId, writer, title, content, createdDate, countOfComment);
+        assertThat(question2).isEqualTo(new Question(questionId, writer, title, content, createdDate, countOfComment));
+    }
 }
