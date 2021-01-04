@@ -11,6 +11,8 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class ReflectionTest {
     private static final Logger logger = LoggerFactory.getLogger(ReflectionTest.class);
 
@@ -68,4 +70,32 @@ public class ReflectionTest {
             }
         }
     }
+
+    @Test
+    public void privateFieldAccess() throws Exception {
+        Class<Student> clazz = Student.class;
+        logger.debug(clazz.getName());
+        Student student = new Student();
+        String name = "재성";
+        int age = 10;
+
+        setName(student, name);
+        setAge(student, age);
+
+        assertThat(student.getName()).isEqualTo(name);
+        assertThat(student.getAge()).isEqualTo(age);
+    }
+
+    private void setName(Student student, String name) throws NoSuchFieldException, IllegalAccessException {
+        Field nameField = Student.class.getDeclaredField("name");
+        nameField.setAccessible(true);
+        nameField.set(student, name);
+    }
+
+    private void setAge(Student student, int age) throws NoSuchFieldException, IllegalAccessException {
+        Field ageField = Student.class.getDeclaredField("age");
+        ageField.setAccessible(true);
+        ageField.set(student, age);
+    }
+
 }
