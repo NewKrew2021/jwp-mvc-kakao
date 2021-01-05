@@ -18,12 +18,13 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class BeanFactoryTest {
     private Reflections reflections;
     private BeanFactory beanFactory;
+    Set<Class<?>> preInstanticateClazz;
 
     @BeforeEach
     @SuppressWarnings("unchecked")
     public void setup() {
         reflections = new Reflections("core.di.factory.example");
-        Set<Class<?>> preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
+        preInstanticateClazz = getTypesAnnotatedWith(Controller.class, Service.class, Repository.class);
         beanFactory = new BeanFactory(preInstanticateClazz);
         beanFactory.initialize();
     }
@@ -47,5 +48,10 @@ public class BeanFactoryTest {
             beans.addAll(reflections.getTypesAnnotatedWith(annotation));
         }
         return beans;
+    }
+
+    @Test
+    public void printPreInstanticateClazz() {
+        preInstanticateClazz.forEach(clazz -> System.out.println(clazz.getSimpleName()));
     }
 }
