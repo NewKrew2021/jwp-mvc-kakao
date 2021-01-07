@@ -2,8 +2,8 @@ package next.controller;
 
 import core.annotation.web.Controller;
 import core.annotation.web.RequestMapping;
-import core.mvc.DefaultView;
 import core.mvc.ModelAndView;
+import core.mvc.view.DefaultView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
