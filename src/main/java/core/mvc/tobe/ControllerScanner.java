@@ -13,8 +13,8 @@ public class ControllerScanner {
 
     private final Reflections reflections;
 
-    public ControllerScanner(String basePackage) {
-        this.reflections = new Reflections(basePackage, SUB_TYPES_SCANNER, TYPE_ANNOTATIONS_SCANNER);
+    public ControllerScanner(String[] basePackages) {
+        this.reflections = new Reflections(basePackages, SUB_TYPES_SCANNER, TYPE_ANNOTATIONS_SCANNER);
     }
 
     public Set<Class<?>> scan() {

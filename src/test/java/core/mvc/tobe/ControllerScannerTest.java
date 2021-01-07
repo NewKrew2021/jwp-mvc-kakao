@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 class ControllerScannerTest {
     @Test
     void scan() {
-        ControllerScanner scanner = new ControllerScanner("core.mvc.tobe");
+        ControllerScanner scanner = new ControllerScanner(new String[]{"core.mvc.tobe"});
 
         Set<Class<?>> classes = scanner.scan();
 
