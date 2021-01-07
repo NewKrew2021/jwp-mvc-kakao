@@ -1,6 +1,5 @@
 package core.mvc.asis;
 
-import next.controller.ProfileController;
 import next.controller.UpdateFormUserController;
 import next.controller.UpdateUserController;
 import org.slf4j.Logger;
@@ -16,7 +15,6 @@ public class RequestMapping {
     void initMapping() {
         mappings.put("/users/form", new ForwardController("/user/form.jsp"));
         mappings.put("/users/loginForm", new ForwardController("/user/login.jsp"));
-        mappings.put("/users/profile", new ProfileController());
         mappings.put("/users/updateForm", new UpdateFormUserController());
         mappings.put("/users/update", new UpdateUserController());
 
