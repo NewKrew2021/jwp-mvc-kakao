@@ -10,9 +10,9 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Controller {
-    @AliasFor("path")
+    @AliasFor("value")
     String value() default "";
 
-    @AliasFor("value")
+    @AliasFor("path")
     String path() default "";
 }

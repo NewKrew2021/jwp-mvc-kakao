@@ -1,6 +1,12 @@
 package core.mvc.asis;
 
-import next.controller.*;
+import next.controller.CreateUserController;
+import next.controller.HomeController;
+import next.controller.LoginController;
+import next.controller.LogoutController;
+import next.controller.ProfileController;
+import next.controller.UpdateFormUserController;
+import next.controller.UpdateUserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +21,6 @@ public class RequestMapping {
         mappings.put("/", new HomeController());
         mappings.put("/users/form", new ForwardController("/user/form.jsp"));
         mappings.put("/users/loginForm", new ForwardController("/user/login.jsp"));
-        mappings.put("/users", new ListUserController());
         mappings.put("/users/login", new LoginController());
         mappings.put("/users/profile", new ProfileController());
         mappings.put("/users/logout", new LogoutController());
