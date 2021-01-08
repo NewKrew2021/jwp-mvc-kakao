@@ -1,4 +1,4 @@
-package core.mvc.tobe;
+package core.mvc.handlermapping;
 
 import com.google.common.collect.Maps;
 import core.annotation.web.RequestMapping;
@@ -26,13 +26,7 @@ public class AnnotationHandlerMapping {
     }
 
     private void initializeHandlerExecutions() throws InstantiationException, IllegalAccessException {
-        for (String basePackage : basePackages) {
-            initializeWithPackage(basePackage);
-        }
-    }
-
-    private void initializeWithPackage(String basePackage) throws InstantiationException, IllegalAccessException {
-        for (Class<?> clazz : new ControllerScanner(basePackage).scan()) {
+        for (Class<?> clazz : new ControllerScanner(basePackages).scan()) {
             Object controllerObject = clazz.newInstance();
             Arrays.stream(clazz.getDeclaredMethods())
                     .filter(method -> method.isAnnotationPresent(RequestMapping.class))
